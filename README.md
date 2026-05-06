@@ -16,7 +16,7 @@ This approach: zones defined in YAML config files. Terraform module reads the YA
 
 prod.yaml gives you full zone redundancy:
 - 3 VMs across 3 zones
-- ZRS storage — 3 copies across 3 zones  
+- ZRS storage — 3 copies across 3 zones
 - zone_redundant true on SQL
 
 dev.yaml gives you cost optimized setup:
@@ -41,13 +41,45 @@ Same Terraform code runs both. Only the YAML changes.
 
 ## Usage
 
+Step 1 — Initialize Terraform:
 terraform init
 
-terraform plan for dev:
-terraform plan -var="environment=dev" -var="vm_admin_username=adminuser" -var="vm_admin_password=YourPassword123!" -var="sql_admin_username=sqladmin" -var="sql_admin_password=YourPassword123!"
+Step 2 — Plan for dev environment:
+terraform plan \
+  -var="environment=dev" \
+  -var="vm_admin_username=YOUR_USERNAME" \
+  -var="vm_admin_password=YOUR_PASSWORD" \
+  -var="sql_admin_username=YOUR_SQL_USERNAME" \
+  -var="sql_admin_password=YOUR_SQL_PASSWORD"
 
-terraform plan for prod:
-terraform plan -var="environment=prod" -var="vm_admin_username=adminuser" -var="vm_admin_password=YourPassword123!" -var="sql_admin_username=sqladmin" -var="sql_admin_password=YourPassword123!"
+Step 3 — Plan for prod environment:
+terraform plan \
+  -var="environment=prod" \
+  -var="vm_admin_username=YOUR_USERNAME" \
+  -var="vm_admin_password=YOUR_PASSWORD" \
+  -var="sql_admin_username=YOUR_SQL_USERNAME" \
+  -var="sql_admin_password=YOUR_SQL_PASSWORD"
+
+Note: Credentials are passed as variables at runtime and never stored in code.
+
+## Dev vs Prod Plan Output
+
+Dev plan output:
+  storage_replication_type = "LRS"
+  vm_zones = {
+    az-vm-scus-zredundancy-dev-001 = "1"
+    az-vm-scus-zredundancy-dev-002 = "2"
+  }
+
+Prod plan output:
+  storage_replication_type = "ZRS"
+  vm_zones = {
+    az-vm-scus-zredundancy-prod-001 = "1"
+    az-vm-scus-zredundancy-prod-002 = "2"
+    az-vm-scus-zredundancy-prod-003 = "3"
+  }
+
+Same code. Different YAML. Different infrastructure.
 
 ## Author
 
