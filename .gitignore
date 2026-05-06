@@ -1,0 +1,22 @@
+# Terraform state files — never push these
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Terraform working directory — auto generated on terraform init
+.terraform/
+.terraform.lock.hcl
+
+# Variable files that might contain real values
+*.tfvars
+*.tfvars.json
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Mac system file
+.DS_Store
+
+# VS Code settings
+.vscode/

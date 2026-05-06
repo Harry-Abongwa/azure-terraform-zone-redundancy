@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────────────
+# DEV.YAML
+# Development environment configuration.
+# Reduced redundancy to save cost.
+# Same structure as prod — different values.
+# ─────────────────────────────────────────────────────
+
+zone_redundancy:
+
+  # ── LOAD BALANCER ──────────────────────────────────
+  # Still Standard SKU — needed for zone awareness
+  load_balancer:
+    name: "az-lb-scus-zredundancy-dev-001"
+    sku: "Standard"
+
+  # ── VIRTUAL MACHINES ───────────────────────────────
+  # Only 2 VMs in dev — saves cost
+  # Dev downtime is acceptable
+  # Zone 3 not covered — acceptable risk in non-prod
+  virtual_machines:
+    - name: "az-vm-scus-zredundancy-dev-001"
+      size: "Standard_B1s"
+      zone: "1"
+
+    - name: "az-vm-scus-zredundancy-dev-002"
+      size: "Standard_B1s"
+      zone: "2"
+      # Only 2 zones in dev — cost saving vs prod
+
+  # ── STORAGE ────────────────────────────────────────
+  # LRS = Locally Redundant Storage
+  # 3 copies in ONE zone — cheaper than ZRS
+  # Acceptable in dev — data loss risk is tolerable
+  storage:
+    name: "stzreddev001"
+    replication: "LRS"
+    # LRS in dev — saves money vs ZRS
+
+  # ── SQL SERVER ─────────────────────────────────────
+  sql_servers:
+    - name: "az-sql-scus-zredundancy-dev-001"
+      zone_redundant: false
+      # false in dev — no zone redundancy needed
+      # Saves significant cost vs zone_redundant: true
+      databases:
+        - name: "az-sqldb-scus-app-dev-001"
+          sku: "GP_Gen5_2"
+          # Same SKU as prod but zone_redundant is false

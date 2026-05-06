@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────
+# PROD.YAML
+# Production environment configuration.
+# Full zone redundancy across all 3 zones.
+# This is what gets read by Terraform at runtime.
+# ─────────────────────────────────────────────────────
+
+zone_redundancy:
+
+  # ── LOAD BALANCER ──────────────────────────────────
+  # Standard SKU required for zone redundancy
+  # Basic SKU does NOT support zone redundancy
+  load_balancer:
+    name: "az-lb-scus-zredundancy-prod-001"
+    sku: "Standard"
+
+  # ── VIRTUAL MACHINES ───────────────────────────────
+  # One VM per zone — all serving live traffic
+  # This is Active/Active — not standby
+  # Zone 1 goes down → Zone 2 and 3 keep running
+  virtual_machines:
+    - name: "az-vm-scus-zredundancy-prod-001"
+      size: "Standard_B1s"
+      # Using B1s — cheapest VM for practice
+      # In real prod this would be Standard_D4s_v3
+      zone: "1"
+
+    - name: "az-vm-scus-zredundancy-prod-002"
+      size: "Standard_B1s"
+      zone: "2"
+
+    - name: "az-vm-scus-zredundancy-prod-003"
+      size: "Standard_B1s"
+      zone: "3"
+      # 3 VMs across 3 zones = full zone redundancy
+
+  # ── STORAGE ────────────────────────────────────────
+  # ZRS = Zone Redundant Storage
+  # 3 copies of data across 3 zones automatically
+  # Zone 1 goes down → data still in Zone 2 and 3
+  storage:
+    name: "stzredprod001"
+    # Storage account names: lowercase, no hyphens, max 24 chars
+    replication: "ZRS"
+    # ZRS in prod — zone redundant
+
+  # ── SQL SERVER ─────────────────────────────────────
+  sql_servers:
+    - name: "az-sql-scus-zredundancy-prod-001"
+      zone_redundant: true
+      # true in prod — Azure replicates across zones
+      # Requires General Purpose or Business Critical tier
+      databases:
+        - name: "az-sqldb-scus-app-prod-001"
+          sku: "GP_Gen5_2"
+          # GP = General Purpose — supports zone_redundant
+          # Gen5 = hardware generation
+          # 2 = number of vCores
